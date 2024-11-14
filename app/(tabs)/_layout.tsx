@@ -2,10 +2,7 @@ import { Link, Tabs } from "expo-router";
 import React from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
-import {
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
@@ -62,7 +59,7 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="newpage"
                 options={{
-                    headerTitle: "Record a session",
+                    headerTitle: "Record a Session",
                     tabBarIcon: ({ color, focused }) => (
                         <TabBarIcon
                             name={focused ? "add-circle" : "add-circle-outline"}
@@ -75,7 +72,7 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="workouts"
                 options={{
-                    headerTitle: "Workout plans",
+                    headerTitle: "Workout Plans",
                     tabBarIcon: ({ color, focused }) => (
                         <TabBarIcon
                             name={focused ? "clipboard" : "clipboard-outline"}

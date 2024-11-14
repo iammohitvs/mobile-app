@@ -16,8 +16,12 @@ import "../global.css";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable } from "react-native";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
@@ -40,7 +44,9 @@ export default function RootLayout() {
             <ThemeProvider
                 value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
             >
-                <NativeLayout />
+                <QueryClientProvider client={queryClient}>
+                    <NativeLayout />
+                </QueryClientProvider>
             </ThemeProvider>
         </AuthProvider>
     );
@@ -60,7 +66,21 @@ export const NativeLayout = () => {
             <Stack.Screen
                 name="account"
                 options={{
-                    presentation: "card",
+                    headerShown: true,
+                    headerLeft: () => (
+                        <Pressable onPress={() => router.back()}>
+                            <Ionicons
+                                name="arrow-back"
+                                color={"black"}
+                                size={28}
+                            />
+                        </Pressable>
+                    ),
+                }}
+            />
+            <Stack.Screen
+                name="session/[id]"
+                options={{
                     headerShown: true,
                     headerLeft: () => (
                         <Pressable onPress={() => router.back()}>
