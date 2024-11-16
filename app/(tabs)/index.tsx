@@ -1,9 +1,8 @@
 import FilterModal from "@/components/FilterModal";
 import SessionCard from "@/components/SessionCard";
 import { Colors } from "@/constants/Colors";
-import api from "@/lib/axiosInstance";
 import { getAllSessions } from "@/lib/sessionRequests";
-import { handleAxiosError } from "@/lib/utils";
+import { SessionType } from "@/lib/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -13,16 +12,13 @@ export default function Sessions() {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const { data, isLoading } = useQuery({
-        queryKey: ["sessiions-all"],
-        queryFn: async () =>
-            await getAllSessions(0, 5, undefined),
-        refetchInterval: 2000,
+        queryKey: ["sessions-all"],
+        queryFn: async () => await getAllSessions(0, 5, ""),
     });
 
     return (
         <View className="px-4 pt-6">
             <Text className="mb-4 font-light text-md">
-                {isLoading ? "Loading" : data?.userId}
                 All your recorded sessions are visible below. Browse through
                 them and filter by your choice.
             </Text>
@@ -37,23 +33,23 @@ export default function Sessions() {
                     </Text>
                     <Ionicons name="filter-outline" size={22} color={"white"} />
                 </TouchableOpacity>
-
-                <FilterModal
-                    isVisible={isModalVisible}
-                    setIsVisible={setIsModalVisible}
-                />
             </View>
 
             <View style={styles.sesssionContainer}>
-                <Text>April</Text>
+                {isLoading && (
+                    <Text style={styles.loadingText}>Loading...</Text>
+                )}
 
-                <SessionCard />
-                <SessionCard />
+                {data?.length === 0 && (
+                    <Text className="mb-4 font-light text-md">
+                        No sessions available. Record some sessions to view them
+                        here
+                    </Text>
+                )}
 
-                <Text>March</Text>
-
-                <SessionCard />
-                <SessionCard />
+                {data?.map((session) => (
+                    <SessionCard key={session.id} session={session} />
+                ))}
             </View>
         </View>
     );
@@ -80,5 +76,10 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         gap: 8,
         alignItems: "center",
+    },
+    loadingText: {
+        color: "gray",
+        textAlign: "center",
+        padding: 20,
     },
 });

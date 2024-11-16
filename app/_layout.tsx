@@ -78,10 +78,29 @@ export const NativeLayout = () => {
                     ),
                 }}
             />
+
             <Stack.Screen
                 name="session/[id]"
                 options={{
                     headerShown: true,
+                    headerTitle: "",
+                    headerLeft: () => (
+                        <Pressable onPress={() => router.back()}>
+                            <Ionicons
+                                name="arrow-back"
+                                color={"black"}
+                                size={28}
+                            />
+                        </Pressable>
+                    ),
+                }}
+            />
+
+            <Stack.Screen
+                name="edit/[id]"
+                options={{
+                    headerShown: true,
+                    headerTitle: "Edit",
                     headerLeft: () => (
                         <Pressable onPress={() => router.back()}>
                             <Ionicons

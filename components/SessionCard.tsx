@@ -2,20 +2,22 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+import { SessionType } from "@/lib/types";
+import { formatDate } from "@/lib/utils";
 
-const SessionCard = () => {
+const SessionCard = ({ session }: { session: SessionType }) => {
     const router = useRouter();
 
     return (
         <TouchableOpacity
             activeOpacity={0.6}
             style={styles.contanier}
-            onPress={() => router.push("/session/4")}
+            onPress={() => router.push(`/session/${session.id}`)}
         >
             <View style={styles.innerContainer}>
-                <Text style={styles.title}>Hello</Text>
-                <Text style={styles.date}>12</Text>
+                <Text style={styles.title}>{session.workoutName}</Text>
+                <Text style={styles.date}>Completed: {formatDate(session.dateTime)}</Text>
             </View>
 
             <Ionicons name="chevron-forward" />
@@ -56,6 +58,7 @@ const styles = StyleSheet.create({
     },
     date: {
         fontWeight: "300",
+        fontSize: 13,
     },
 });
 
