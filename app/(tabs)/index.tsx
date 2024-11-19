@@ -1,43 +1,58 @@
-import FilterModal from "@/components/FilterModal";
 import SessionCard from "@/components/SessionCard";
 import { Colors } from "@/constants/Colors";
 import { getAllSessions } from "@/lib/sessionRequests";
-import { SessionType } from "@/lib/types";
-import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+    StyleSheet,
+    Text,
+    View,
+    TouchableOpacity,
+    ScrollView,
+} from "react-native";
+import { useQueryClient } from "@tanstack/react-query";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Sessions() {
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const queryClient = useQueryClient();
 
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, isError } = useQuery({
         queryKey: ["sessions-all"],
-        queryFn: async () => await getAllSessions(0, 5, ""),
+        queryFn: async () => await getAllSessions(0, 100, ""),
+        staleTime: Infinity,
     });
 
     return (
-        <View className="px-4 pt-6">
+        <ScrollView className="px-4 pt-6">
             <Text className="mb-4 font-light text-md">
                 All your recorded sessions are visible below. Browse through
                 them and filter by your choice.
             </Text>
 
-            <View style={styles.filterView}>
-                <TouchableOpacity
-                    style={styles.filterButton}
-                    onPress={() => setIsModalVisible(true)}
-                >
-                    <Text style={{ color: "white", fontWeight: "600" }}>
-                        Filter
-                    </Text>
-                    <Ionicons name="filter-outline" size={22} color={"white"} />
-                </TouchableOpacity>
-            </View>
-
             <View style={styles.sesssionContainer}>
                 {isLoading && (
                     <Text style={styles.loadingText}>Loading...</Text>
+                )}
+
+                {isError && (
+                    <View style={styles.errorBox}>
+                        <Text className="text-center text-red-600">
+                            Something went wrong trying to get your session data
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() =>
+                                queryClient.refetchQueries({
+                                    queryKey: ["session-all"],
+                                })
+                            }
+                        >
+                            <Ionicons
+                                name="reload-circle-outline"
+                                color={"red"}
+                                size={40}
+                                className="mt-5"
+                            />
+                        </TouchableOpacity>
+                    </View>
                 )}
 
                 {data?.length === 0 && (
@@ -51,7 +66,7 @@ export default function Sessions() {
                     <SessionCard key={session.id} session={session} />
                 ))}
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
@@ -60,6 +75,7 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "column",
         gap: 8,
+        marginBottom: 40,
     },
     filterView: {
         display: "flex",
@@ -81,5 +97,12 @@ const styles = StyleSheet.create({
         color: "gray",
         textAlign: "center",
         padding: 20,
+    },
+    errorBox: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        margin: 30,
     },
 });

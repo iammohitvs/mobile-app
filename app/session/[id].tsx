@@ -24,7 +24,7 @@ const sessionPage = () => {
     });
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, marginHorizontal: 8, }}>
             <ScrollView>
                 {isFetching && (
                     <Text style={styles.loadingText}>Loading...</Text>

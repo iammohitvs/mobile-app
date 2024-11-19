@@ -25,7 +25,7 @@ const SessionInfo = ({
 
     const { session, sessionInfo } = data;
 
-    const { mutate } = useMutation({
+    const { mutate, isPending } = useMutation({
         mutationKey: ["delete", `session-${session.id}`],
         mutationFn: async () => await deleteSession(session.id),
         onSuccess: () => {
@@ -70,6 +70,7 @@ const SessionInfo = ({
                     onPress={async () => {
                         mutate();
                     }}
+                    disabled={isPending}
                 >
                     <Ionicons name="trash-outline" size={22} color={"white"} />
                     <Text style={{ color: "white", fontWeight: "600" }}>
@@ -83,6 +84,7 @@ const SessionInfo = ({
                     onPress={() => {
                         router.push(`/edit/${session.id}`);
                     }}
+                    disabled={isPending}
                 >
                     <Ionicons name="create-outline" size={22} color={"black"} />
                     <Text

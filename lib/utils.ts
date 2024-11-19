@@ -1,6 +1,6 @@
 import axios from "axios";
 import { format } from "date-fns";
-import { SessionDetailsType } from "./types";
+import { SessionDetailsType, WorkoutType } from "./types";
 
 export const handleAxiosError = (error: unknown) => {
     if (axios.isAxiosError(error)) {
@@ -49,4 +49,78 @@ export const formatSessionDetails = (
     // returns soomething like: [{exercise: "bicep curl", setsAndDetails: [["12.5", 10], ["12.5", "8"]]}, ....]
 
     return exercises;
+};
+
+export const parseSessionDetails = (
+    formattedDetails: { exercise: string; setsAndDetails: string[][] }[]
+): SessionDetailsType => {
+    let sessionDetails: SessionDetailsType = {};
+
+    formattedDetails.map(({ exercise, setsAndDetails }) => {
+        let setAndDetail: Record<string, { weight: number; reps: number }> = {};
+
+        setsAndDetails.map((setDetail, index) => {
+            const [weight, reps] = setDetail;
+            setAndDetail[`${index + 1}`] = {
+                weight: Number(weight),
+                reps: Number(reps),
+            };
+        });
+
+        sessionDetails[exercise] = setAndDetail; // Ensure types align with `ExerciseData`
+    });
+
+    return sessionDetails;
+};
+
+export const formatWorkouts = (
+    workouts: WorkoutType[]
+): {
+    id: string;
+    label: string;
+    value: string;
+}[] => {
+    let formattedWorkouts: {
+        id: string;
+        label: string;
+        value: string;
+    }[] = [];
+
+    workouts.forEach((workout, index) => {
+        formattedWorkouts.push({
+            id: String(index),
+            label: workout.name.toUpperCase(),
+            value: workout.id,
+        });
+    });
+
+    return formattedWorkouts;
+};
+
+export const range = (init: number, fin?: number, step: number = 1) => {
+    let arr = [];
+
+    if (!fin) {
+        fin = init;
+        init = 0;
+    }
+
+    for (let i = init; i < fin; i = i + step) {
+        arr.push(i);
+    }
+
+    return arr;
+};
+
+export const createSessionDetails = (exercises: any) => {
+    let sessionDetails: any[] = [];
+
+    Object.entries(exercises).forEach(([exercise, numberOfSets]) => {
+        sessionDetails.push({
+            exercise,
+            setsAndDetails: range(Number(numberOfSets)).map(() => [0, 0]),
+        });
+    });
+
+    return sessionDetails;
 };

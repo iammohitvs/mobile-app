@@ -16,7 +16,7 @@ export const months: RadioButtonProps[] = [
     { id: "12", label: "December", value: "december" },
 ];
 
-export const sampelWorkout: RadioButtonProps[] = [
+export const sampelWorkout = [
     { id: "0", label: "All", value: "all" },
     { id: "1", label: "Push", value: "pushId" },
     { id: "2", label: "Pull", value: "pullId" },

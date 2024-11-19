@@ -1,10 +1,27 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { sampelWorkout } from "@/lib/constants";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getAllWorkouts } from "@/lib/workoutRequests";
+import { Ionicons } from "@expo/vector-icons";
+import { WorkoutType } from "@/lib/types";
 
-const WorkoutDropdown = () => {
-    const [value, setValue] = useState<string | null | undefined>(null);
+const WorkoutDropdown = ({
+    setChosenWorkout,
+}: {
+    setChosenWorkout: React.Dispatch<
+        React.SetStateAction<WorkoutType | undefined>
+    >;
+}) => {
+    const queryClient = useQueryClient();
+    const [value, setValue] = useState<string | undefined>(undefined);
+
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ["workout-all"],
+        queryFn: async () => await getAllWorkouts(),
+        staleTime: Infinity,
+    });
 
     // @ts-ignore
     const renderItem = (item) => {
@@ -17,27 +34,56 @@ const WorkoutDropdown = () => {
 
     return (
         <>
-            <Dropdown
-                style={styles.dropdown}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                // @ts-ignore
-                data={sampelWorkout}
-                search
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder="Choose your workout plan"
-                searchPlaceholder="Search..."
-                value={value}
-                onChange={(item) => {
-                    setValue(item.value);
-                }}
-                renderItem={renderItem}
-            />
+            {isLoading && <Text style={styles.loadingText}>Loading...</Text>}
 
-            <Text>Here comes the workout information: {value}</Text>
+            {isError && (
+                <View style={styles.errorBox}>
+                    <Text className="text-center text-red-600">
+                        Something went wrong trying to get your session data
+                    </Text>
+                    <TouchableOpacity
+                        onPress={() =>
+                            queryClient.refetchQueries({
+                                queryKey: ["workout-all"],
+                            })
+                        }
+                    >
+                        <Ionicons
+                            name="reload-circle-outline"
+                            color={"red"}
+                            size={40}
+                            className="mt-5"
+                        />
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {data && (
+                <Dropdown
+                    style={styles.dropdown}
+                    placeholderStyle={styles.placeholderStyle}
+                    selectedTextStyle={styles.selectedTextStyle}
+                    inputSearchStyle={styles.inputSearchStyle}
+                    // @ts-ignore
+                    data={data.formattedWorkouts}
+                    search
+                    maxHeight={300}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="Choose your workout plan"
+                    searchPlaceholder="Search workout..."
+                    value={value}
+                    onChange={(item) => {
+                        setValue(item.value);
+                        setChosenWorkout(
+                            data.workouts.find(
+                                (workout) => workout.id === item.value
+                            )
+                        );
+                    }}
+                    renderItem={renderItem}
+                />
+            )}
         </>
     );
 };
@@ -56,6 +102,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
+        marginBottom: 16,
     },
     item: {
         padding: 17,
@@ -77,6 +124,19 @@ const styles = StyleSheet.create({
     inputSearchStyle: {
         height: 32,
         fontSize: 14,
+        borderRadius: 10,
+    },
+    loadingText: {
+        color: "gray",
+        textAlign: "center",
+        padding: 20,
+    },
+    errorBox: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        margin: 30,
     },
 });
 
